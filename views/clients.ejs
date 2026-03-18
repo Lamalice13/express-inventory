@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clients</title>
+  </head>
+  <body>
+    <h1>Clients</h1>
+    <% if(locals.users && locals.users.length > 0) { %> <% users.forEach(user =>
+    { %>
+    <div>
+      <p><span>Name: </span><%= user.name %></p>
+      <p><span>Last name: </span><%= user.lastname %></p>
+      <p><span>Birthday: </span><%= user.birthday %></p>
+      <p><span>Number: </span><%= user.phone_number %></p>
+      <p>
+        <span
+          ><%= user.sub_status == "inactive" ? "Non abonné" : "Abonné" %>
+        </span>
+      </p>
+    </div>
+    <%}) } else {%>
+    <p>Aucun client trouvé :(</p>
+    <% } %>
+  </body>
+</html>
