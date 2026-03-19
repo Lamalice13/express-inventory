@@ -49,3 +49,17 @@ exports.createUnsubClient = async (
     [name, lastname, email, birth_date, phone_number, sub_status]
   );
 };
+
+exports.findUserByEmail = async (email) => {
+  const user = await pool.query("SELECT * FROM clients WHERE email=$1", [
+    email,
+  ]);
+  return user.rows[0];
+};
+
+exports.findUserByPhone = async (phone) => {
+  const user = await pool.query("SELECT * FROM clients WHERE phone_number=$1", [
+    phone,
+  ]);
+  return user.rows[0];
+};
