@@ -12,7 +12,10 @@
     <div>
       <p><span>Name: </span><%= user.name %></p>
       <p><span>Last name: </span><%= user.lastname %></p>
-      <p><span>Birthday: </span><%= user.birthday %></p>
+      <p>
+        <span>Birthday: </span><%= user.birth_date.toISOString().split("T")[0]
+        %>
+      </p>
       <p><span>Number: </span><%= user.phone_number %></p>
       <p>
         <span
@@ -20,8 +23,134 @@
         </span>
       </p>
     </div>
+    <hr />
     <%}) } else {%>
     <p>Aucun client trouvé :(</p>
     <% } %>
+    <a href="/">Go back to lobby</a>
+
+    <form action="/clients" method="post">
+      <h2>Create a new client</h2>
+      <fieldset>
+        <legend>Personal informations</legend>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required />
+        <label for="lastname">Last name</label>
+        <input type="text" id="lastname" name="lastname" required />
+        <label for="email">E-mail</label>
+        <input type="email" name="email" id="email" />
+        <label for="birth_date">Birthday</label>
+        <input type="date" name="birth_date" id="birth_date" required />
+        <label for="phone_number">Phone number</label>
+        <input type="number" name="phone_number" id="phone_number" required />
+        <p>Do you want to subscribe ?</p>
+        <label for="active">Yes</label>
+        <input
+          type="radio"
+          name="sub_status"
+          id="active"
+          value="active"
+          checked
+        />
+        <label for="inactive">No</label>
+        <input type="radio" name="sub_status" id="inactive" value="inactive" />
+      </fieldset>
+      <div id="sub_field">
+        <fieldset>
+          <legend>Subscription</legend>
+          <div>
+            <label for="monthly">Monthly</label>
+            <input type="radio" name="sub_type" id="monthly" value="monthly" />
+            <label for="sub_type">quarterly</label>
+            <input
+              type="radio"
+              name="sub_type"
+              id="sub_type"
+              value="quarterly"
+              checked
+            />
+
+            <label for="start_date">Start date</label>
+            <input type="date" name="start_date" id="start_date" />
+
+            <label for="end_date">End date</label>
+            <input type="date" name="end_date" id="end_date" readonly />
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Payment method</legend>
+          <label for="method">Cb</label>
+          <input type="radio" name="method" id="method" value="cb" checked />
+        </fieldset>
+        <h3>Amount to pay: <span id="amount">159.99€</span></h3>
+        <input type="hidden" name="amount" id="amount" value="159.99" />
+      </div>
+      <button type="submit">Create</button>
+    </form>
+
+    <script>
+      const subStatusInputs = document.querySelectorAll(
+        'input[name="sub_status"]'
+      );
+      const div = document.getElementById("sub_field");
+      const startDateInput = document.getElementById("start_date");
+      const endDateInput = document.getElementById("end_date");
+      const amountSpan = document.getElementById("amount");
+      const subTypeInput = document.querySelectorAll('input[name="sub_type"]');
+      const radios = document.querySelectorAll('input[type="radio"]');
+      const amountInputHidden = document.getElementById("amount");
+      let debounceId;
+
+      const today = new Date();
+      const todayIso = today.toISOString().split("T")[0];
+      startDateInput.min = todayIso;
+      startDateInput.value = todayIso;
+
+      const todayPlus30Days = new Date();
+      todayPlus30Days.setDate(todayPlus30Days.getDate() + 30);
+      endDateInput.value = todayPlus30Days.toISOString().split("T")[0];
+
+      radios.forEach((r) => {
+        r.style.cursor = "pointer";
+      });
+
+      startDateInput.min = subStatusInputs.forEach((r) => {
+        r.addEventListener("change", () => {
+          const value = document.querySelector(
+            'input[name="sub_status"]:checked'
+          ).value;
+          const show = value === "active";
+          div.style.display = show ? "block" : "none";
+
+          div
+            .querySelectorAll("input:not(input[name='sub_status'])")
+            .forEach((input) => {
+              input.disabled = !show;
+            });
+        });
+      });
+
+      subTypeInput.forEach((r) => {
+        r.addEventListener("change", () => {
+          const value = document.querySelector(
+            'input[name="sub_type"]:checked'
+          ).value;
+          amountSpan.textContent = value === "monthly" ? "59.99€" : "159.99€";
+          amountInputHidden.value = value === "monthly" ? "59.99€" : "159.99€";
+        });
+      });
+
+      function calculateDate(value) {
+        const date = new Date(value);
+        date.setDate(date.getDate() + 30);
+        return date.toISOString().split("T")[0];
+      }
+
+      startDateInput.addEventListener("change", () => {
+        const dateValue = startDateInput.value;
+        const endDate = calculateDate(dateValue);
+        endDateInput.value = endDate;
+      });
+    </script>
   </body>
 </html>

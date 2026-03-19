@@ -12,10 +12,9 @@ app.listen(PORT, (err) => {
     console.log(`Server listening on PORT ${PORT}`);
   }
 });
-app.use("/clients", clientsRouter);
-
+app.use(express.urlencoded({ extended: true }));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
-
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+
+app.use("/clients", clientsRouter);
