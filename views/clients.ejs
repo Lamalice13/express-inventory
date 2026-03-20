@@ -23,6 +23,8 @@
           ><%= user.sub_status == "inactive" ? "Non abonné" : "Abonné" %>
         </span>
       </p>
+      <a href="/clients/<%= user.id %>/update">Update</a>
+      <a href="/clients/<%= user.id %>/delete">Delete</a>
     </div>
     <hr />
     <%}) } else {%>
@@ -68,7 +70,7 @@
         />
         <label for="phone_number">Phone number</label>
         <input
-          type="number"
+          type="tel"
           name="phone_number"
           id="phone_number"
           placeholder="06 66 66 66 66"

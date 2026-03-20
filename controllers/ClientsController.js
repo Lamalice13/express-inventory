@@ -149,8 +149,70 @@ exports.userPost = [
           method
         );
       }
-      console.log("redirecting...");
+
       res.redirect("/");
+    } catch (err) {
+      next(err);
+    }
+  },
+];
+
+exports.userUpdateGet = async (req, res, next) => {
+  try {
+    const userInfos = await db.getClientInfos(req.params.id);
+
+    res.render("updateClient", {
+      userInfos,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const validateUpdateClients = [
+  body("email")
+    .isEmail()
+    .withMessage("Please enter a valid email address")
+    .custom(async (value, { req }) => {
+      const user = await db.findUserByEmail(value);
+
+      if (user && user.id != req.params.id)
+        throw new Error("E-mail already in use");
+
+      return true;
+    }),
+
+  body("phone_number", "Incorrect format")
+    .isMobilePhone(["fr-FR"])
+    .custom(async (value, { req }) => {
+      const user = await db.findUserByPhone(value);
+      if (user && user.id != req.params.id)
+        throw new Error("Phone number already exists");
+      return true;
+    }),
+];
+
+exports.userUpdate = [
+  validateUpdateClients,
+  async (req, res, next) => {
+    const id = req.params.id;
+    const errors = validationResult(req);
+    const data = matchedData(req);
+
+    if (!errors.isEmpty()) {
+      try {
+        const userInfos = await db.getClientInfos(id);
+        return res.render("updateClient", {
+          errors: errors.array(),
+          userInfos,
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+    try {
+      await db.updateClientEmailAndPhone(data.email, data.phone_number, id);
+      res.redirect("/clients");
     } catch (err) {
       next(err);
     }

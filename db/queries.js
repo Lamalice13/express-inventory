@@ -5,6 +5,14 @@ exports.getAllClients = async () => {
   return rows;
 };
 
+exports.getClientInfos = async (id) => {
+  const { rows } = await pool.query(
+    "SELECT clients.id AS id, name, lastname, email, phone_number, sub_status, start_date, end_date, sub_type  FROM clients INNER JOIN subscriptions ON clients.id = subscriptions.client_id WHERE clients.id=$1",
+    [id]
+  );
+  return rows[0];
+};
+
 exports.createSubClient = async (
   name,
   lastname,
@@ -62,4 +70,12 @@ exports.findUserByPhone = async (phone) => {
     phone,
   ]);
   return user.rows[0];
+};
+
+exports.updateClientEmailAndPhone = async (email, phone_number, id) => {
+  await pool.query("UPDATE clients SET email=$1, phone_number=$2 WHERE id=$3", [
+    email,
+    phone_number,
+    id,
+  ]);
 };
