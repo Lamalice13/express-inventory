@@ -17,6 +17,7 @@
         %>
       </p>
       <p><span>Number: </span><%= user.phone_number %></p>
+      <p>Email: <span><%= user.email %></span></p>
       <p>
         <span
           ><%= user.sub_status == "inactive" ? "Non abonné" : "Abonné" %>
@@ -30,30 +31,59 @@
     <a href="/">Go back to lobby</a>
 
     <form action="/clients" method="post">
+      <%- include("partials/errors.ejs") %>
       <h2>Create a new client</h2>
       <fieldset>
         <legend>Personal informations</legend>
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" required />
+        <input
+          type="text"
+          id="name"
+          name="name"
+          required
+          value="<%= locals.user ? user.name : ''%>"
+        />
         <label for="lastname">Last name</label>
-        <input type="text" id="lastname" name="lastname" required />
+        <input
+          type="text"
+          id="lastname"
+          name="lastname"
+          required
+          value="<%= locals.user ? user.lastname : ''%>"
+        />
         <label for="email">E-mail</label>
-        <input type="email" name="email" id="email" />
+        <input
+          type="email"
+          name="email"
+          id="email"
+          value="<%= locals.user ? user.email : ''%>"
+        />
         <label for="birth_date">Birthday</label>
-        <input type="date" name="birth_date" id="birth_date" required />
+        <input
+          type="date"
+          name="birth_date"
+          id="birth_date"
+          required
+          value="<%= locals.user ? user.birth_date.toISOString().split('T')[0] : ''%>"
+        />
         <label for="phone_number">Phone number</label>
-        <input type="number" name="phone_number" id="phone_number" required />
+        <input
+          type="number"
+          name="phone_number"
+          id="phone_number"
+          placeholder="06 66 66 66 66"
+          required
+          value="<%= locals.user ? user.phone_number : ''%>"
+        />
         <p>Do you want to subscribe ?</p>
         <label for="active">Yes</label>
-        <input
-          type="radio"
-          name="sub_status"
-          id="active"
-          value="active"
-          checked
+        <input type="radio" name="sub_status" id="active" value="active" <%=
+        (locals.user ? user.sub_status === "active" : true) ? "checked" : "" %>
         />
         <label for="inactive">No</label>
-        <input type="radio" name="sub_status" id="inactive" value="inactive" />
+        <input type="radio" name="sub_status" id="inactive" value="inactive" <%=
+        (locals.user ? user.sub_status === "inactive" : false) ? "checked" : ""
+        %>/>
       </fieldset>
       <div id="sub_field">
         <fieldset>
@@ -82,7 +112,7 @@
           <label for="method">Cb</label>
           <input type="radio" name="method" id="method" value="cb" checked />
         </fieldset>
-        <h3>Amount to pay: <span id="amount">159.99€</span></h3>
+        <h3>Amount to pay: <span id="amount_span">159.99€</span></h3>
         <input type="hidden" name="amount" id="amount" value="159.99" />
       </div>
       <button type="submit">Create</button>
@@ -95,7 +125,7 @@
       const div = document.getElementById("sub_field");
       const startDateInput = document.getElementById("start_date");
       const endDateInput = document.getElementById("end_date");
-      const amountSpan = document.getElementById("amount");
+      const amountSpan = document.getElementById("amount_span");
       const subTypeInput = document.querySelectorAll('input[name="sub_type"]');
       const radios = document.querySelectorAll('input[type="radio"]');
       const amountInputHidden = document.getElementById("amount");
@@ -114,20 +144,22 @@
         r.style.cursor = "pointer";
       });
 
-      startDateInput.min = subStatusInputs.forEach((r) => {
-        r.addEventListener("change", () => {
-          const value = document.querySelector(
-            'input[name="sub_status"]:checked'
-          ).value;
-          const show = value === "active";
-          div.style.display = show ? "block" : "none";
+      function getSubStatusValue() {
+        return document.querySelector('input[name="sub_status"]:checked').value;
+      }
 
-          div
-            .querySelectorAll("input:not(input[name='sub_status'])")
-            .forEach((input) => {
-              input.disabled = !show;
-            });
-        });
+      function updateSubFields() {
+        const show = getSubStatusValue() === "active";
+        div.style.display = show ? "block" : "none";
+        div
+          .querySelectorAll("input:not(input[name='sub_status'])")
+          .forEach((input) => {
+            input.disabled = !show;
+          });
+      }
+      updateSubFields();
+      subStatusInputs.forEach((r) => {
+        r.addEventListener("change", updateSubFields);
       });
 
       subTypeInput.forEach((r) => {
@@ -136,7 +168,7 @@
             'input[name="sub_type"]:checked'
           ).value;
           amountSpan.textContent = value === "monthly" ? "59.99€" : "159.99€";
-          amountInputHidden.value = value === "monthly" ? "59.99€" : "159.99€";
+          amountInputHidden.value = value === "monthly" ? "59.99" : "159.99";
         });
       });
 

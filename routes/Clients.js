@@ -4,7 +4,7 @@ const clientsRouter = Router();
 
 clientsRouter
   .route("/")
-  .get(clientsController.userListGet)
-  .post(clientsController.userPost);
+  .post(clientsController.userPost)
+  .get(clientsController.userListGet);
 
 module.exports = clientsRouter;
