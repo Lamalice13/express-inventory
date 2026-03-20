@@ -182,7 +182,7 @@ const validateUpdateClients = [
       return true;
     }),
 
-  body("phone_number", "Incorrect format")
+  body("phone_number", "Phone in incorrect format")
     .isMobilePhone(["fr-FR"])
     .custom(async (value, { req }) => {
       const user = await db.findUserByPhone(value);
@@ -198,6 +198,8 @@ exports.userUpdate = [
     const id = req.params.id;
     const errors = validationResult(req);
     const data = matchedData(req);
+    console.log(errors);
+    console.log(errors.array());
 
     if (!errors.isEmpty()) {
       try {

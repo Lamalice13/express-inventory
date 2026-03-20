@@ -28,6 +28,10 @@
         value="<%= userInfos.phone_number %>"
       />
 
+      <% if(locals.errors) { %>
+      <p style="color: red"><%= errors[0].msg %></p>
+      <% } %>
+
       <button type="submit">Update</button>
     </form>
     <hr />
@@ -57,7 +61,7 @@
 
       <button type="submit">Update</button>
     </form>
-
-    <script></script>
+    <hr />
+    <a href="/clients">Go back to clients page</a>
   </body>
 </html>
